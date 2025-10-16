@@ -7,9 +7,6 @@ import streamlit.components.v1 as components
 import requests
 import math
 
-API_URL = st.secrets["SHEETBEST_URL"]
-API_URL_STATS = "https://api.sheetbest.com/sheets/b182e0f1-84d8-41f6-9ad3-ea8473065730/tabs/Stats" 
-
 def scroll_top():
     components.html(
         """
@@ -41,10 +38,6 @@ def save_row(role, co2_devices, co2_ewaste, co2_ai, co2_digital, co2_total):
         "CO2 Total": norm_val(co2_total),
     }
 
-    r = requests.post(API_URL, json=payload, timeout=10)
-    r.raise_for_status()
-    return r.json()
-
 def _to_float(x):
     # Converte "310,2" o "310.2" in float, gestisce None
     if x is None:
@@ -57,13 +50,7 @@ def _to_float(x):
     except ValueError:
         return None
 
-def fetch_role_stats():
-    """Legge il tab 'Stats' via Sheet.best: [{'Role':'Student','AvgCO2':'297.3','Count':'42'}, ...]."""
-    if not API_URL_STATS:
-        return []
-    r = requests.get(API_URL_STATS, timeout=10)
-    r.raise_for_status()
-    return r.json() or []
+
 
 def get_avg_for_role_from_stats(role: str):
     """Ritorna (avg, count) per il ruolo dal tab 'Stats', oppure (None, None) se non disponibile."""
@@ -1408,8 +1395,6 @@ def show_results_equiv():
             try:
                 if not st.session_state.get("saved_once", False):
                     import sys
-                    api_url = st.secrets.get("SHEETBEST_URL", None)
-                    assert api_url, "SHEETBEST_URL not found in st.secrets"
 
                     role_label = st.session_state.get("role", "")
                     total_val = float(sum(st.session_state.results.values()))
@@ -2062,6 +2047,7 @@ elif st.session_state.page == "virtues":
     show_virtues()
 elif st.session_state.page == "final":
     show_final()
+
 
 
 
